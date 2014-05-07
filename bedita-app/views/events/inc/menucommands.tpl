@@ -26,9 +26,9 @@ Menu a SX valido per tutte le pagine del controller.
 
 			<hr />
 
-			export ics
+			<a href="{$html->here}/export/csv/?Date_Day={$smarty.get.Date_Day}&Date_Month={$smarty.get.Date_Month}&Date_Year={$smarty.get.Date_Year}">export CSV</a>
 
-			export csv
+			
 
 		</form>
 	{elseif !empty($view->action) && $view->action != "index" && $view->action != "categories" && $view->action != "calendar"}

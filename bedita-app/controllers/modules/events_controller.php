@@ -89,6 +89,13 @@ class EventsController extends ModulesController {
         }
         $this->set("dateItems", $dateItemsCalendar);
         $this->set("allDates", $allDates);
+
+        if ($this->params["pass"][0] == "export") {
+            if($this->params["pass"][1] == "csv") {
+                $this->render("calendar_csv");
+            }
+        }
+
     }
 
 	public function view($id = null) {
