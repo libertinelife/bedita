@@ -57,8 +57,8 @@
 <div class="main">
 
 		<div class="tab"><h2>{t}System utilities{/t}</h2></div>
-
-			<table id="utilities" class="bordered">
+		<div id="utilities">
+			<table class="bordered">
 
 				<tr>
 					<th><b>{t}cleanup cache{/t}</b>:</th><td><button class="execute" rel="cleanupCache"> {t}GO{/t} </button></td>
@@ -82,6 +82,5 @@
 				</tr>
 					
 			</table>
-
-
+		</div>
 </div>

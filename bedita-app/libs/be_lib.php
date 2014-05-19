@@ -440,7 +440,7 @@ class BeLib {
             $cmd .= "cd $folder; ";
         }
         $cmd .= "git rev-parse --abbrev-ref HEAD";
-        exec($cmd, $branch);
+        system($cmd, $branch);
         $branch = (!empty($branch[0]))? $branch[0] : false;
         return $branch;
     }
@@ -451,7 +451,7 @@ class BeLib {
      */
     protected function getGitBranches() {
         $cmd = "git branch";
-        exec($cmd, $branches);
+        system($cmd, $branches);
         if (!empty($branches)) {
             foreach($branches as &$b) {
                 $b = preg_replace('/\s?\*?\s+/', '', $b);
@@ -475,7 +475,7 @@ class BeLib {
         } else {
             $currentBranch = BeLib::getGitBranch($path);
             if ($currentBranch === false) {
-                $res['error'] = "Failed retrieve current git branch";
+                $res['error'] = "Failed retrieve current git branch in: $path";
             }
             $updateCmd = "cd $path; git fetch origin; git merge origin/$currentBranch;";
         }
