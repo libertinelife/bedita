@@ -7,7 +7,7 @@
 <div class="main">
 	<div class="tab"><h2>{t}BEdita updates{/t}</h2></div>
 	<div id="update-list">
-		<table class="indexlist">
+		<table class="indexlist js-header-float">
 			<thead>
 				<tr>
 					<th>Name</th>
