@@ -440,7 +440,7 @@ class BeLib {
             $cmd .= "cd $folder; ";
         }
         $cmd .= "git rev-parse --abbrev-ref HEAD";
-        system($cmd, $branch);
+        exec($cmd, $branch);
         $branch = (!empty($branch[0]))? $branch[0] : false;
         return $branch;
     }
@@ -451,7 +451,7 @@ class BeLib {
      */
     protected function getGitBranches() {
         $cmd = "git branch";
-        system($cmd, $branches);
+        exec($cmd, $branches);
         if (!empty($branches)) {
             foreach($branches as &$b) {
                 $b = preg_replace('/\s?\*?\s+/', '', $b);
@@ -482,7 +482,9 @@ class BeLib {
 
         $res['command'] = $updateCmd;
         
-        $res['status'] = system($updateCmd);
+        $status = null;
+        exec($updateCmd, $status);
+        $res['status'] = $status;
 
         // update enabled addons
         if (strstr($path, BEDITA_ADDONS_PATH)) {
