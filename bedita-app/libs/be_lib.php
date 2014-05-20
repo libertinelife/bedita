@@ -468,6 +468,8 @@ class BeLib {
 	 */
 	public function remoteUpdatePath($path) {
 		$res = array();
+		$res['status'] = -1;
+		$res['error'] = null;
 		// svn repository
         if (file_exists($path . DS . ".svn")) {
             $updateCmd = "svn update $path";
@@ -475,17 +477,19 @@ class BeLib {
         } else {
             $currentBranch = BeLib::getGitBranch($path);
             if ($currentBranch === false) {
+            	// no version control
+            	$updateCmd = "cd $path;";
                 $res['error'] = "Failed retrieve current git branch in: $path";
-            }
-            $updateCmd = "cd $path; git fetch origin; git merge origin/$currentBranch;";
+            } else {
+           		$updateCmd = "cd $path; git fetch origin; git merge origin/$currentBranch;";
+           	}
         }
 
         $res['command'] = $updateCmd;
         
-        $status = null;
-        exec($updateCmd, $status);
+        
+        exec($updateCmd, $output, $status);
         $res['status'] = $status;
-
         // update enabled addons
         if (strstr($path, BEDITA_ADDONS_PATH)) {
         	$folder = new Folder(BEDITA_ADDONS_PATH);
@@ -497,7 +501,9 @@ class BeLib {
                 $list = $folder->read();
                 if (!empty($list[1])) {
                     foreach ($list[1] as $addonFile) {
-                        $Addon->update($addonFile, $type);
+                    	if (strstr($addonFile, '.DS_Store') === false) {
+                        	$Addon->update($addonFile, $type);
+                        }
                     }
                 }
             }

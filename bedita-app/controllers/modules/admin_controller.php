@@ -90,7 +90,11 @@ class AdminController extends ModulesController {
             }
             try {
                 $data = BeLib::remoteUpdatePath($this->params["form"]["operation"]);
-                $message = 'update done';
+                if ($data['status'] == 0) {
+                    $message = 'update done';
+                } else {
+                    $message = $data['status'];
+                }
                 $type = 'info';
                 if (!empty($data['error'])) {
                     $message = $data['error'];
