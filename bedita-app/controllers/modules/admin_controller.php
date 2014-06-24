@@ -93,12 +93,12 @@ class AdminController extends ModulesController {
                 if ($data['status'] == 0) {
                     $message = 'update done';
                 } else {
-                    $message = $data['status'];
+                    $message = $data['error'];
                 }
                 $type = 'info';
                 if (!empty($data['error'])) {
                     $message = $data['error'];
-                    $type = 'warn';
+                    $type = 'error';
                 }
                 $data['msgType'] = $type;
                 $this->set('message', $message);

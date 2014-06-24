@@ -479,14 +479,20 @@ class BeLib {
             if ($currentBranch === false) {
             	// no version control
             	$updateCmd = "cd $path;";
-                $res['error'] = "Failed retrieve current git branch in: $path";
+                $res['error'] = "Failed retrieve a current git branch in: $path";
             } else {
-           		$updateCmd = "cd $path; git fetch origin; git merge origin/$currentBranch;";
+            	$findFolder = exec('cd ' . $path . '; git rev-parse --show-toplevel');
+            	$isWriteable = is_writable($findFolder . DS . 'ORIG_HEAD');
+            	if ($isWriteable) {
+           			$updateCmd = 'export DYLD_LIBRARY_PATH="/usr/lib/":$DYLD_LIBRARY_PATH; cd ' . $path . '; git fetch origin; git merge origin/' . $currentBranch . ' 2>&1';
+           		} else {
+           			$updateCmd = "cd $path;";
+                	$res['error'] = "Permission denied: $path";
+           		}
            	}
         }
 
-        $res['command'] = $updateCmd;
-        
+        $res['command'] = $updateCmd; 
         
         exec($updateCmd, $output, $status);
         $res['status'] = $status;
