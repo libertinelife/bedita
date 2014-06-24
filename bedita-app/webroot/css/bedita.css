@@ -1388,11 +1388,12 @@ TABLE.indexlist H4{
 	/*padding-top: 10px; padding-bottom: 10px;*/
 }
 
-.indexlist TD.custom-property-cell {
+.indexlist TD.custom-property-cell P {
     max-width: 160px;
-    word-break: break-word;
+    word-break: break-all;
     text-overflow: ellipsis;
-    max-height: 65px;
+    max-height: 20px;
+	overflow:hidden;
 }
 
 .indexlist .show_on_more {
@@ -1628,6 +1629,7 @@ TABLE.noborder TD, TABLE.noborder TH {
 	height:auto;
 }
 
+
 .multimediaitem.list .imagebox, .multimediaitem.list textarea {
 	display:none;
 }
@@ -1640,6 +1642,8 @@ TABLE.noborder TD, TABLE.noborder TH {
 	color:gray;
 	padding:0px; 
 	border-top:1px solid silver;
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 .multimediaitem input, .multimediaitem textarea {
@@ -1666,9 +1670,6 @@ IMG.multimediaitemToolbar.viewsmall {
 IMG.multimediaitemToolbar.viewthumb {
 	background-position: -36px;
 }
-
-
-
 
 .dark.multimediaitem {
 	background-color:#000000;
@@ -1959,7 +1960,7 @@ A.BEbutton.golink:before {
 	position: fixed !important;
 	z-index:9999;
 	line-height:1.2em;
-	height: 90%;
+	/*height: 90%;*/
 }
 			
 .message {
