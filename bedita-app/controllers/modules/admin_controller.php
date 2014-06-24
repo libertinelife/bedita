@@ -93,7 +93,7 @@ class AdminController extends ModulesController {
                 if ($data['status'] == 0) {
                     $message = 'update done';
                 } else {
-                    $message = $data['error'];
+                    $message = '[' . $data['status'] . '] ' . $data['error'];
                 }
                 $type = 'info';
                 if (!empty($data['error'])) {

@@ -482,12 +482,12 @@ class BeLib {
                 $res['error'] = "Failed retrieve a current git branch in: $path";
             } else {
             	$findFolder = exec('cd ' . $path . '; git rev-parse --show-toplevel');
-            	$isWriteable = is_writable($findFolder . DS . 'ORIG_HEAD');
+            	$isWriteable = is_writable($findFolder . DS . '.git' . DS . 'ORIG_HEAD');
             	if ($isWriteable) {
            			$updateCmd = 'export DYLD_LIBRARY_PATH="/usr/lib/":$DYLD_LIBRARY_PATH; cd ' . $path . '; git fetch origin; git merge origin/' . $currentBranch . ' 2>&1';
            		} else {
            			$updateCmd = "cd $path;";
-                	$res['error'] = "Permission denied: $path";
+                	$res['error'] = "Permission denied: $findFolder" . DS . 'ORIG_HEAD';
            		}
            	}
         }
@@ -496,6 +496,10 @@ class BeLib {
         
         exec($updateCmd, $output, $status);
         $res['status'] = $status;
+        if (!empty($output) && empty($res['error']) && $status) {
+        	$res['error'] = $output[0];
+    	}
+
         // update enabled addons
         if (strstr($path, BEDITA_ADDONS_PATH)) {
         	$folder = new Folder(BEDITA_ADDONS_PATH);
