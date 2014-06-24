@@ -479,7 +479,7 @@ class BeLib {
             if ($currentBranch === false) {
             	// no version control
             	$updateCmd = "cd $path;";
-                $res['error'] = "Failed retrieve a current git branch in: $path";
+                $res['error'] = "$path is not in a valid Git/SVN repository";
             } else {
             	$findFolder = exec('cd ' . $path . '; git rev-parse --show-toplevel');
             	$isWriteable = is_writable($findFolder . DS . '.git' . DS . 'ORIG_HEAD');
