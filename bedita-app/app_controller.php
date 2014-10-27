@@ -279,6 +279,12 @@ class AppController extends Controller
 	 * Otherwise no redirect
 	 */
 	final function beforeRender() {
+        if ($this->RequestHandler->isAjax()) {            
+            $this->setAjaxLayout();
+            if ($this->RequestHandler->accepts(array('json', 'application/json'))) {
+                $this->setJsonResponse();
+            }
+        }
 
 		// convienience methods for frontends [like beforeRender]
         $this->beditaBeforeRender();
@@ -863,6 +869,21 @@ class AppController extends Controller
 		$this->set('moduleName', $moduleName);
 	}
 
+    /**
+     *  Set the ajax layout
+     */
+    private function setAjaxLayout() {
+        $this->layout = 'ajax';
+    }
+
+    /**
+     *  Prepare JSON response for a data array
+     */
+    private function setJsonResponse() {
+        $this->RequestHandler->respondAs('json');
+        $this->view = 'View';
+        $this->action = 'json';
+    }
 
 }
 
