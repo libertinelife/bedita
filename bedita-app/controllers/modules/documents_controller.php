@@ -36,13 +36,14 @@ class DocumentsController extends ModulesController {
 
 	var $uses = array('BEObject', 'Document', 'Tree','Category') ;
 	protected $moduleName = 'documents';
+	protected $categorizableModels = array('Document');
 
 	public function index($id = null, $order = "", $dir = true, $page = 1, $dim = 20) {
     	$conf  = Configure::getInstance() ;
-		$filter["object_type_id"] = array($conf->objectTypes['document']["id"]);
-		$filter["count_annotation"] = array("Comment","EditorNote");
+		$filter['object_type_id'] = $conf->objectTypes['document']['id'];
+		$filter['count_annotation'] = array('Comment', 'EditorNote');
 		$this->paginatedList($id, $filter, $order, $dir, $page, $dim);
-		$this->loadCategories($filter["object_type_id"]);
+		$this->loadCategories($filter['object_type_id']);
 	 }
 
 	public function view($id = null) {
@@ -86,32 +87,6 @@ class DocumentsController extends ModulesController {
 
 	public function categories() {
 		$this->showCategories($this->Document);
-	}
-
-	public function saveCategories() {
-		$this->checkWriteModulePermission();
-		if(empty($this->data["label"]))
-			throw new BeditaException( __("No data", true));
-		$this->Transaction->begin() ;
-		if(!$this->Category->save($this->data)) {
-			throw new BeditaException(__("Error saving tag", true), $this->Category->validationErrors);
-		}
-		$this->Transaction->commit();
-		$this->userInfoMessage(__("Category saved", true)." - ".$this->data["label"]);
-		$this->eventInfo("category [" .$this->data["label"] . "] saved");
-	}
-
-	public function deleteCategories() {
-		$this->checkWriteModulePermission();
-		if(empty($this->data["id"]))
-			throw new BeditaException( __("No data", true));
-		$this->Transaction->begin() ;
-		if(!$this->Category->delete($this->data["id"])) {
-			throw new BeditaException(__("Error saving tag", true), $this->Category->validationErrors);
-		}
-		$this->Transaction->commit();
-		$this->userInfoMessage(__("Category deleted", true) . " -  " . $this->data["label"]);
-		$this->eventInfo("Category " . $this->data["id"] . "-" . $this->data["label"] . " deleted");
 	}
 
 	protected function forward($action, $esito) {

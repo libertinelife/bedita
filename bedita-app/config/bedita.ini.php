@@ -41,7 +41,9 @@ $config["majorVersion"] = "3.4.0"; // don't override -- admin/system
 $config["codenameVersion"] = "Corylus"; // don't override -- admin/system
 
 // Multimedia - image file substituting missing content (as now used in BeThumb helper)
-$config['imgMissingFile'] = "/img/iconMissingImage_130x85.gif";
+$config['imgMissingFile'] = '/img/iconMissingImage_130x85.gif';
+
+$config['imgUnsupported'] = '/img/iconset/image-large.png';
 
 /**
  ** ******************************************
@@ -342,7 +344,7 @@ $config["defaultObjRelationType"] = array(
 			"label"
 		),
 		"inverse" => "attached_to",
-		"inverseLabel" => "attached_to",
+		"inverseLabel" => "attached to",
 	),
 	"link" => array(
 		"hidden" => true,
@@ -363,14 +365,14 @@ $config["defaultObjRelationType"] = array(
 			"label"
 		),
 		"inverse" => "downloadable_in",
-		"inverseLabel" => "downloadable_in",
+		"inverseLabel" => "downloadable in",
 	),
 	"mediamap" => array(
 		"left" => array("image"),
 		"right" => array(),
 		"inverse" => "mediamapped",
 		"label" => "mediamap",
-		"inverseLabel" => "mediamapped_by",
+		"inverseLabel" => "mediamapped by",
 		"params" => array(
 			"number",
 			"top",
@@ -397,6 +399,11 @@ $config["defaultObjRelationType"] = array(
 
 // Relations - local objects' relation types (override in bedita.cfg)
 $config["objRelationType"] = array ();
+
+// secondary relations to load in frontends - #515
+$config['frontendSecondaryRelations'] = array (
+        'attach' => array('mediamap', 'poster')
+);
 
 // Default reserved words [avoided in nickname creation]
 $config["defaultReservedWords"] = array("captchaImage", "category", "content",
@@ -495,9 +502,9 @@ $config['validate_resource'] = array(
 $config['media_providers'] = array(
 	"youtube"	=> array(
 		"regexp" => array(
-			'/^http:\/\/\w{3}\.youtube\.com\/watch\?v=(.[^&]+)/',
-			'/^http:\/\/youtube\.com\/watch\?v=(.[^&]+)/',
-			'/^http:\/\/[a-z]{2}\.youtube\.com\/watch\?v=(.[^&]+)/'
+			'/^http[s]?:\/\/\w{3}\.youtube\.com\/watch\?v=(.[^&]+)/',
+			'/^http[s]?:\/\/youtube\.com\/watch\?v=(.[^&]+)/',
+			'/^http[s]?:\/\/[a-z]{2}\.youtube\.com\/watch\?v=(.[^&]+)/'
 		),
 		"params" => array(
 			"width" 	=> 300,

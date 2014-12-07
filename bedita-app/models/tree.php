@@ -693,7 +693,8 @@ class Tree extends BEAppModel
 				"contain" => array(
 					"BEObject" => array(
 						"Permission",
-						"ObjectProperty",
+						"Category",
+					    "ObjectProperty",
 						"LangText"
 						),
 					"Tree"
@@ -745,7 +746,14 @@ class Tree extends BEAppModel
 	 * @throws BeditaException
 	 */
 	public function copyContentsToBranch($originalBranchId, $newBranchId) {
-		$children = $this->getChildren($originalBranchId, null, null, array("object_type_id" => "<> " . Configure::read("objectTypes.section.id")));
+		$children = $this->getChildren(
+			$originalBranchId,
+			null,
+			null,
+			array(
+				'NOT' => array('object_type_id' => Configure::read('objectTypes.section.id'))
+			)
+		);
 		if (!empty($children["items"])) {
 			foreach ($children["items"] as $item) {
 				if (!$this->appendChild($item["id"], $newBranchId)) {
@@ -760,7 +768,20 @@ class Tree extends BEAppModel
 		}
 	}
 
+    /**
+     * Add to array of BEdita objects a count of ubiquity
+     *
+     * @param array $objects
+     * @param array $options
+     * @return array
+     */
+    public function countUbiquity(array $objects, array $options = array()) {
+        foreach ($objects as &$obj) {
+            $obj['ubiquity'] = $this->find('count', array(
+                'conditions' => array('id' => $obj['id'])
+            ));
+        }
+        return $objects;
+    }
+
 }
-
-
-?>

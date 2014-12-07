@@ -31,7 +31,7 @@ class BeThumb {
 					"image/pjpeg" => "jpg",
 					"image/png" => "png",
 					"image/svg+xml" => "svg",
-			);
+	);
 	
 	/**
 	 * Source image data
@@ -48,10 +48,15 @@ class BeThumb {
 		
 	
 	/**
-	 * Link to missing image (could be different in backend o frontend)
+	 * Link to "missing image" url img (could be different in backend o frontend)
 	 */
 	private $imgMissingFile = null;
 
+	/**
+	 * Link to "unsupported mime" url image (could be different in backend o frontend)
+	 */
+	private $imgUnsupported = null;
+	
 	
 	/**
 	 * All known mime types
@@ -65,6 +70,12 @@ class BeThumb {
 			if (!file_exists(WWW_ROOT . $this->imgMissingFile)) {
 				$this->imgMissingFile = Configure::read('beditaUrl') . $this->imgMissingFile;
 			}
+		}
+		$this->imgUnsupported = Configure::read('imgUnsupported');
+		if (!BACKEND_APP) {
+		    if (!file_exists(WWW_ROOT . $this->imgUnsupported)) {
+		        $this->imgUnsupported = Configure::read('beditaUrl') . $this->imgUnsupported;
+		    }
 		}
 	}
 
@@ -161,12 +172,20 @@ class BeThumb {
 		
 		// setup internal imageInfo array
 		if (!$this->setupImageInfo($data)) {
-			return $this->imgMissingFile;
+            if (!empty($data['error']) && $data['error'] == 'unsupported') {
+                return $this->imgUnsupported;
+            } else {
+                return $this->imgMissingFile;
+            }
 		}
 		
 		// if svg skip and return image without any resize
-		if($data['mime_type'] === 'image/svg+xml') { 
-			return Configure::read('mediaUrl') . $this->imageInfo['path'];
+		if($data['mime_type'] === 'image/svg+xml') {
+			if ($this->imageInfo["remote"]) {
+				return $this->imageInfo['path'];
+			} else {
+				return Configure::read('mediaUrl') . $this->imageInfo['path'];
+			}
 		}
 		
 		// test source file available
@@ -193,14 +212,20 @@ class BeThumb {
 
 	/**
 	 * Setup internal imageInfo data array
+	 * On error $data['error'] is populated with:
+	 *    - 'notFund' if image is missing or unreachable
+	 *    - 'fileSys' on a local filesystem related error
+	 *    - 'unsupported' if image format is not supported 
 	 * 
 	 * @param array $data
+	 * @return true on success, false on error
 	 */
 	public function setupImageInfo(array &$data) {
 
 	    // check uri
-	    if(empty($data['uri'])) {
+	    if (empty($data['uri'])) {
 	        $this->triggerError("Missing image 'uri'");
+	        $data['error'] = 'notFund';
 	        return false;
 	    }
 	    
@@ -210,6 +235,7 @@ class BeThumb {
 	        $uriParts = parse_url($data['uri']);
 	        if (!$uriParts || !in_array($uriParts["scheme"], array("http", "https"))) {
 	            $this->triggerError("'" . $data['uri'] . "' unsupported uri protocol (only http/https)");
+	            $data['error'] = 'notFund';
 	            return false;
 	        }
 	        if (empty($data['path'])) {
@@ -222,7 +248,9 @@ class BeThumb {
 		// relative path (local files and remote uri)
 		$this->imageInfo['path'] = $data['path'];
 		
+		// thumbnail setup
 		$pathParts =  pathinfo($data['path']);
+
 		// complete file name
 		$this->imageInfo['filename'] = $pathParts['basename'];
 		// file name without extension
@@ -245,8 +273,9 @@ class BeThumb {
 			BeLib::getInstance()->friendlyUrlString($this->imageInfo['path'], "\.\/");
 		// absolute cache dir path
 		$this->imageInfo['cacheDirectory'] = $mediaRoot . $this->imageInfo['cachePath'];
-		if(!$this->checkCacheDirectory()) {
+		if (!$this->checkCacheDirectory()) {
 			$this->triggerError("Error creating/reading cache directory " . $this->imageInfo['cacheDirectory']);
+	        $data['error'] = 'fileSys';
 			return false;
 		}
 		
@@ -259,10 +288,16 @@ class BeThumb {
 		}
 		if (!in_array($data["mime_type"], array_keys($this->supportedTypes))) {
 			$this->triggerError("'" . $data['uri'] . "' mime type not supported: " . $data['mime_type']);
+	        $data['error'] = 'unsupported';
 			return false;
 		}
 		$this->imageInfo['mime_type'] = $data['mime_type'];
 		$this->imageInfo['type'] = $this->supportedTypes[$data['mime_type']];		
+
+		// if SVG skip thumbnail and other info
+		if ($data['mime_type'] === 'image/svg+xml') { 
+			return true;
+		}
 
 		if (empty($data['width']) || empty($data['height']) ) {
 
@@ -270,17 +305,19 @@ class BeThumb {
 		    $imageData = @getimagesize($imageFilePath);
             if (!$imageData) {
                 $this->triggerError("'" . $this->imageInfo['filepath'] . "' is not a valid image file");
+                $data['error'] = 'unsupported';
                 return false;
             }
 			// set up the rest of image info array
-			$this->imageInfo["w"] = $imageData[0];
-			$this->imageInfo["h"] = $imageData[1];
+			$this->imageInfo['w'] = $imageData[0];
+			$this->imageInfo['h'] = $imageData[1];
 			// http://www.php.net/manual/en/function.getimagesize.php -- 
 			// http://www.php.net/manual/en/function.exif-imagetype.php (constants)
-			$types = array(1 => "gif", 2 => "jpg", 3 => "png");
+			$types = array(1 => 'gif', 2 => 'jpg', 3 => 'png');
 			if ($imageData[2] < 1 || $imageData[2] > 3) {
-				$this->triggerError("Image type not supported [" . $imageData[2] . "] " 
+				$this->triggerError('Image type not supported [' . $imageData[2] . '] ' 
 							. $this->imageInfo['filepath']);
+                $data['error'] = 'unsupported';
 				return false;
 			}
 			$this->imageInfo['type'] = $types[$imageData[2]];
@@ -289,8 +326,8 @@ class BeThumb {
 				
 		} else {
 
-			$this->imageInfo["w"] = $data['width'];
-			$this->imageInfo["h"] = $data['height'];
+			$this->imageInfo['w'] = $data['width'];
+			$this->imageInfo['h'] = $data['height'];
 		}
 		
 		return true;
