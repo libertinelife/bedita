@@ -147,13 +147,14 @@ class AdminController extends ModulesController {
 			$this->eventInfo("utility [". $this->params["form"]["operation"] ."] executed");
 			$this->render(null, "ajax", VIEWS . "/pages/json.ctp");
 		} else {
-			$sel = array();
-			$sel[] = array(
+			$sel = array(
 				'path' => ROOT,
 				'name' => 'BEdita core/backend',
 				'type' => 'Core'
 			);
+			$this->set('core', $sel);
 
+			$sel = array();
 			$frontendFolders = BeLib::getFrontendFolders();
 			foreach ($frontendFolders as $key => $folder) {
 				$name = array_pop(explode(DS, $folder));
@@ -163,7 +164,9 @@ class AdminController extends ModulesController {
 					'type' => 'Frontend'
 				);
 			}
+			$this->set('frontends', $sel);
 
+			$sel = array();
 			$addonFolder = BeLib::getAddonFolders();
 			foreach ($addonFolder as $key => $folder) {
 				$name = array_pop(explode(DS, $folder));
@@ -173,7 +176,9 @@ class AdminController extends ModulesController {
 					'type' => 'Addon'
 				);
 			}
+			$this->set('addons', $sel);
 
+			$sel = array();
 			$moduleFolder = BeLib::getPluginModuleFolders();
 			foreach ($moduleFolder as $key => $folder) {
 				$name = array_pop(explode(DS, $folder));
@@ -184,7 +189,7 @@ class AdminController extends ModulesController {
 				);
 			}
 
-			$this->set('paths', $sel);
+			$this->set('modules', $sel);
 		}
 	}
 

@@ -58,6 +58,11 @@ Menu comandi, seconda colonna da SX valido per tutte le pagine del controller.
 			<input class="bemaincommands" type="button" name="save" onClick="$('#customRelations').submit()" 
 			value="{t}save all{/t}" />
 			-->
+
+		{elseif $view->action == "update"}
+
+			<button class="bemaincommands ajax" rel="{$core.path}">{t}update BEdita{/t}</button>
+
 		{/if}
 
 	</div>
